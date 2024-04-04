@@ -1,13 +1,22 @@
 {
 	"folders": [
 		{
+			"name": "root",
+			"path": "./"
+		},
+		{
 			"name": "api",
 			"path": "./server"
 		},
 		{
 			"name": "web",
 			"path": "./web"
-		}
+		},
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"server": true,
+			"web": true
+		}
+	}
 }
