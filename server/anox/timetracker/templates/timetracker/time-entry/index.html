@@ -1,0 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'timetracker/styles.css' %}">
+
+{% for time_entry in time_entries %}
+<div class="test">{{ time_entry.uuid }}</div>
+<div class="test">{{ time_entry.description }}</div>
+{% endfor %}
