@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from timetracker.utils import to_canonical_name
 
 # TODO add indexes
@@ -12,8 +13,8 @@ class Task(models.Model):
         db_table = "tasks"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     completed_at = models.DateTimeField(null=True)
     closed_at = models.DateTimeField(null=True)
@@ -43,7 +44,7 @@ class Timestamp(models.Model):
         db_table = "timestamps"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     # Any content you wish to add to a timestamp,
     # like "server reports out of memory error this time".
@@ -59,8 +60,8 @@ class TimeEntry(models.Model):
         verbose_name_plural = "time entries"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
     description = models.TextField()
@@ -74,8 +75,8 @@ class Tag(models.Model):
         db_table = "tags"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=255)
     canonical_name = models.CharField(max_length=255, unique=True)
@@ -98,8 +99,8 @@ class Note(models.Model):
         db_table = "notes"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     """
     This is the date the note is for. So, if I'm writing down some notes on
@@ -119,8 +120,8 @@ class Statistic(models.Model):
         db_table = "statistics"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     icon = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255)
@@ -142,8 +143,8 @@ class StatisticValue(models.Model):
         db_table = "statistic_values"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
 
@@ -162,7 +163,7 @@ class TagLink(models.Model):
     class Meta:
         db_table = "tag_links"
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     time_entry = models.ForeignKey(
         TimeEntry,
         related_name="tag_links",

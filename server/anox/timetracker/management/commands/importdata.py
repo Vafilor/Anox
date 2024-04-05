@@ -22,9 +22,6 @@ from timetracker.utils import to_canonical_name
 
 CHUNK_SIZE = 500
 
-# TODO the created/updated timestamps are not actually being set
-# TODO use in_bulk() method for mappings.
-
 
 class TagConsolidator:
     def __init__(self) -> None:
