@@ -1,5 +1,4 @@
 import uuid
-from typing import Iterable
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -103,9 +102,10 @@ class Note(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     """
-    This is the date the note is for. So, if I'm writing down some notes on what happened on
-    1.1.2020, I can set that to this variable. I may remember things on different times and add to them
-    later, or I may add a note for a day later.
+    This is the date the note is for. So, if I'm writing down some notes on
+    what happened on 1.1.2020, I can set that to this variable. I may
+    remember things on different times and add to them later, or I may add a note
+    for a day later.
     """
     for_date = models.DateTimeField(null=True)
     title = models.CharField(max_length=255)
