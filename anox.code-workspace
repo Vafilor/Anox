@@ -5,7 +5,7 @@
 			"path": "./"
 		},
 		{
-			"name": "api",
+			"name": "server",
 			"path": "./server"
 		},
 		{
