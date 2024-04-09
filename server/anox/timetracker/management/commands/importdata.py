@@ -78,7 +78,10 @@ def ensure_task_canonical_name(task: Task, canonical_names: Set):
 
     counter = 1
     while task.canonical_name in canonical_names:
-        task.description = f"Original name: {name}. Original canonical name: {canonical_name}\n{description}"
+        task.description = (
+            f"Original name: {name}. Original canonical name:"
+            f"{canonical_name}\n{description}"
+        )
 
         append_len = len(str(counter)) + 2
         if len(task.name) >= (255 - append_len):
@@ -517,18 +520,20 @@ def handle_timestamps(items: List[dict]):
 
 def handle_users(items: List[dict]):
     for item in items:
-        # TODO handle if user already exists. Change id to username for now
-        # TODO additional user data fields
-        if not User.objects.filter(username=item["username"]).exists():
-            User.objects.create_user(
-                # TODO make sure usernames are unique
-                # TODO check id type, see if we can make it a uuid
-                # id=item["id"]
+        u = User.objects.filter(username=item["username"]).first()
+        if not u:
+            u = User.objects.create_user(
                 username=item["username"],
                 email=item["email"],
-                # TODO indicate that a password needs to be changed?
                 password=str(uuid.uuid4()),
             )
+
+        u.profile.timezone = item["timezone"]
+        u.profile.dateFormat = item["dateFormat"]
+        u.profile.dateTimeFormat = item["dateTimeFormat"]
+        u.profile.todayDateTimeFormat = item["todayDateTimeFormat"]
+        u.profile.durationFormat = item["durationFormat"]
+        u.profile.save()
 
 
 def ensure_tags_have_unqiue_names(data_path: Path, stdout: OutputWrapper):
@@ -554,7 +559,10 @@ def ensure_tags_have_unqiue_names(data_path: Path, stdout: OutputWrapper):
                 existing_name = existing_tag["name"]
                 existing_color = existing_tag["color"]
                 stdout.write(
-                    f"Tag '{name}' -> '{canonical_name}' already exists as '{existing_name}'"
+                    (
+                        f"Tag '{name}' -> '{canonical_name}'"
+                        f"already exists as '{existing_name}'"
+                    )
                 )
                 stdout.write("Which one do you want to keep?")
                 stdout.write(f"1. '{existing_name}': {existing_color}")
@@ -564,7 +572,7 @@ def ensure_tags_have_unqiue_names(data_path: Path, stdout: OutputWrapper):
                 while choice not in [1, 2]:
                     try:
                         choice = int(input("Keep: "))
-                    except:
+                    except ValueError:
                         stdout.write("Unknown input, please enter 1 or 2")
 
                 if choice == 1:
@@ -631,8 +639,7 @@ class Command(BaseCommand):
             elif file_type == "time_entries":
                 handle_time_entries(data)
             elif file_type == "timestamps":
-                pass
-                # handle_timestamps(data)
+                handle_timestamps(data)
             elif file_type == "users":
                 handle_users(data)
             else:

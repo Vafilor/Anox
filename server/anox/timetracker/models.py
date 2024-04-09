@@ -8,6 +8,19 @@ from timetracker.utils import to_canonical_name
 # TODO add indexes
 
 
+# TODO add search by tags
+class Profile(models.Model):
+    class Meta:
+        db_table = "profile"
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    timezone = models.CharField(max_length=255)
+    dateFormat = models.CharField(max_length=50)
+    dateTimeFormat = models.CharField(max_length=50)
+    todayDateTimeFormat = models.CharField(max_length=50)
+    durationFormat = models.CharField(max_length=50)
+
+
 class Task(models.Model):
     class Meta:
         db_table = "tasks"
