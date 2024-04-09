@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from django.conf import settings
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
@@ -54,7 +55,7 @@ class NoteViewSet(viewsets.ModelViewSet):
                 else:
                     new_tag = Tag(
                         name=tag_name,
-                        color="ff000000",  # TODO add a default color setting or constant
+                        color=settings.DEFAULT_TAG_COLOR,
                         assigned_to=request.user,
                     )
                     new_tag.save()
