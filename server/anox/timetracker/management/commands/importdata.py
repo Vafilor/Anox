@@ -115,7 +115,7 @@ def format_color(color: str) -> str:
 
     # Old colors did not store alpha component, so add those.
     if len(color) == 6:
-        return color + "00"
+        return color + "FF"
 
 
 def file_name_to_file_type(name: str) -> str:
@@ -314,7 +314,9 @@ def handle_tags(items: List[dict]):
                 tag.assigned_to_id = user_cache.user_from_username(item["assignedTo"])
 
         Tag.objects.bulk_create(new_items)
-        Tag.objects.bulk_update(existing, ["name", "canonical_name", "assigned_to"])
+        Tag.objects.bulk_update(
+            existing, ["assigned_to", "name", "canonical_name", "color"]
+        )
 
 
 def handle_tasks(items: List[dict]):
