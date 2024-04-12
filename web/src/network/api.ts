@@ -34,6 +34,12 @@ interface Stringable {
     toString: () => string;
 }
 
+interface LoginResponse {
+    refresh: string;
+    access: string;
+}
+
+
 interface CreateTag {
     name: string;
     color: string;
@@ -76,7 +82,23 @@ export default class AnoxApi {
                 "Content-Type": "application/json"
             }
         });
-        return await result.json() as T;
+
+        const jsonBody = await result.json();
+
+        if (result.status >= 400) {
+            throw jsonBody;
+        }
+
+        return jsonBody as T;
+    }
+
+    static async login(username: string, password: string) {
+        return AnoxApi.apiJsonFetch<LoginResponse>(BASE_API_URL + "/token/", {
+            method: "POST",
+            body: JSON.stringify({
+                username, password
+            })
+        })
     }
 
     static async listTags(filter?: GenericFilter): Promise<PaginatedResponse<Tag>> {

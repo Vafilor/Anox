@@ -1,14 +1,10 @@
 import { useState } from "react";
-import { BASE_API_URL, HOMEPAGE_ROUTE } from "../constants";
+import { HOMEPAGE_ROUTE } from "../constants";
 import { useAuth } from "../auth/authContext";
 import Spinner from "../components/spinner";
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
-
-// TODO move this to network and add a login method
-interface SignInResponse {
-    refresh: string;
-    access: string;
-}
+import AnoxApi from "../network/api";
+import { useForm } from "react-hook-form";
 
 export const Route = createFileRoute('/login')({
     validateSearch: (search: Record<string, unknown>): { redirect: string } => ({
@@ -19,52 +15,94 @@ export const Route = createFileRoute('/login')({
 
 const routeApi = getRouteApi('/login')
 
+interface LoginInput {
+    username: string;
+    password: string;
+}
+
+function ErrorMessage({ children, className }: { children: string | undefined | null, className?: string }) {
+    console.log("ErrorMessage", children);
+    if (!children) {
+        return null;
+    }
+
+    return <p className={"text-red-500 " + className}>{children}</p>;
+}
+
 export default function Login() {
     const navigate = useNavigate();
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
-
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const search = routeApi.useSearch();
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>();
+
+    async function onSubmit({ username, password }: LoginInput) {
         setLoading(true);
-        event.preventDefault();
 
-        const formData = new FormData(event.currentTarget);
-        const username = formData.get("username") as string;
-        const password = formData.get("password") as string;
 
-        const result = await fetch(BASE_API_URL + "/token/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username, password
-            })
-        })
-
-        // TODO on failure set loading and errors
-        const body = await result.json() as SignInResponse;
-
-        auth.signIn({
-            username,
-            token: body.access
-        });
-
-        navigate({ to: search.redirect });
+        try {
+            const result = await AnoxApi.login(username, password);
+            auth.signIn({
+                username,
+                token: result.access
+            });
+            navigate({ to: search.redirect });
+        } catch (err: unknown) {
+            const detailError = err as { detail: string };
+            if (detailError.detail) {
+                setSubmitError(detailError.detail);
+            } else {
+                setSubmitError("Unknown error occurred");
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
         <div className="flex justify-center items-center h-screen bg-stone-50">
-            <form onSubmit={handleSubmit} className="border p-2 rounded min-w-[340px] bg-white">
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="border p-2 rounded w-[340px] bg-white">
                 <div className="text-lg text-center font-semibold">Anox</div>
                 <hr />
+                <ErrorMessage className="my-2">{submitError}</ErrorMessage>
                 <div className="flex flex-col gap-2 mt-2">
                     <label htmlFor="username">Username</label>
-                    <input id="username" type="text" name="username" className="border p-2 rounded" />
+                    <input
+                        id="username"
+                        {...register("username", {
+                            required: {
+                                value: true,
+                                message: "Username is required"
+                            },
+                            minLength: {
+                                value: 6,
+                                message: "Username must be at least 6 characters"
+                            }
+                        })}
+                        className="border p-2 rounded"
+                    />
+                    <ErrorMessage>{errors.username?.message}</ErrorMessage>
                     <label htmlFor="password">Password</label>
-                    <input id="password" type="password" name="password" className="border p-2 rounded" />
+                    <input
+                        id="password"
+                        {...register("password", {
+                            required: {
+                                value: true,
+                                message: "Password is required"
+                            },
+                            minLength: {
+                                value: 6,
+                                message: "Password must be at least 6 characters"
+                            }
+                        })}
+                        type="password"
+                        className="border p-2 rounded"
+                    />
+                    <ErrorMessage>{errors.password?.message}</ErrorMessage>
                     <button
                         type="submit"
                         className="bg-sky-400 hover:bg-sky-600 p-2 rounded inline-flex justify-center items-center disabled:cursor-not-allowed transition ease-in-out duration-150"
