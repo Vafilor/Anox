@@ -21,7 +21,6 @@ interface LoginInput {
 }
 
 function ErrorMessage({ children, className }: { children: string | undefined | null, className?: string }) {
-    console.log("ErrorMessage", children);
     if (!children) {
         return null;
     }
