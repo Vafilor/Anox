@@ -17,6 +17,7 @@ python-dotenv = "^1.0.1"
 django-debug-toolbar = "^4.3.0"
 django-cors-headers = "^4.3.1"
 djangorestframework-simplejwt = "^5.3.1"
+djangorestframework-camel-case = "^1.4.2"
 
 
 [build-system]

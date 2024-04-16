@@ -49,6 +49,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "djangorestframework_camel_case.middleware.CamelCaseMiddleWare",
 ]
 
 ROOT_URLCONF = "anox.urls"
@@ -116,9 +117,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.DjangoModelPermissions"],
+    "DEFAULT_RENDERER_CLASSES": (
+        "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
+        "djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer",
+    ),
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PARSER_CLASSES": [
+        "djangorestframework_camel_case.parser.CamelCaseJSONParser",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
