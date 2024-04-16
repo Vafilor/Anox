@@ -63,7 +63,7 @@ function AuthenticatedComponent() {
             </header>
             <div className="flex h-[calc(100vh-64px)]">
                 <div
-                    className="hidden w-screen md:block md:w-[240px] bg-zinc-900 data-[manual-open]:fixed data-[manual-open]:text-center"
+                    className="hidden w-screen md:block md:w-[240px] bg-zinc-900 data-[manual-open]:fixed data-[manual-open]:text-center shrink-0 overflow-auto"
                     style={{
                         display: sidebarOpen ? "block" : undefined
                     }}
