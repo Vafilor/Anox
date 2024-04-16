@@ -24,6 +24,7 @@ class TagLinkTagField(serializers.RelatedField):
 
 
 class NoteSerializer(serializers.HyperlinkedModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
     assigned_to_id = serializers.HiddenField(default=-1)
     tags = TagLinkTagField(source="tag_links", many=True)
 
@@ -41,6 +42,7 @@ class NoteSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
     canonical_name = serializers.CharField(read_only=True)
     assigned_to_id = serializers.HiddenField(default=-1)
 
@@ -57,6 +59,8 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TimeEntrySerializer(serializers.HyperlinkedModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
     tags = TagLinkTagField(source="tag_links", many=True, read_only=True)
 
     class Meta:
@@ -73,6 +77,7 @@ class TimeEntrySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TimestampSerializer(serializers.HyperlinkedModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
     tags = TagLinkTagField(source="tag_links", many=True, read_only=True)
 
     class Meta:
