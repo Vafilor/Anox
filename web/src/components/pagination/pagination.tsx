@@ -15,13 +15,6 @@ const classes = {
     disabledLink: "p-2 text-gray-300"
 }
 
-// TODO-Andrey 
-// OnSetPage update the query param - see how to use router for that and to detect loading state
-// pass in loadingPage to indicate loading state
-// on page change, scroll to top
-// tanstack router might remove the need for a reducer
-// page must be passed in, no local state change for that.
-// pass in options to controller how many items to display or... maybe get it based on width?
 export default function Pagination({ page, pageSize, count, maxItems, className }: Props) {
     const hasPrevious = hasPreviousPage({ page, pageSize, count });
     const hasNext = hasNextPage({ page, pageSize, count });

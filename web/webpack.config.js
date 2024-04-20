@@ -5,7 +5,7 @@ module.exports = (webpackEnv, argv) => {
     const isEnvDevelopment = argv.mode === 'development';
     const isEnvProduction = argv.mode === 'production';
 
-    // TODO-Andrey how can I tell ts-loader to include source maps based on dev environment only?
+    // TODO how can I tell ts-loader to include source maps based on dev environment only?
     // make sure to remove it from tsconfig.json
     // ForkTsCheckerWebpackPlugin
     return {

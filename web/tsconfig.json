@@ -17,7 +17,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false, // TODO-Andrey set up Babel for backwards compatibility?
+    "noEmit": false, // TODO set up Babel for backwards compatibility?
     "jsx": "react-jsx",
     "sourceMap": true
   },
