@@ -102,12 +102,16 @@ export default class AnoxApi {
     }
 
     static async listTags(filter?: GenericFilter): Promise<PaginatedResponse<Tag>> {
-        const extra = filterToQuery({
+        let extra = filterToQuery({
             ...filter?.pagination,
             ...filter?.search
         });
 
-        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags/" + extra);
+        if (extra !== "") {
+            extra = "?" + extra;
+        }
+
+        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags" + extra);
     }
 
     static async createTag(args: CreateTag): Promise<Tag> {
