@@ -111,7 +111,7 @@ export default class AnoxApi {
             extra = "?" + extra;
         }
 
-        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags" + extra);
+        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags/" + extra);
     }
 
     static async createTag(args: CreateTag): Promise<Tag> {
