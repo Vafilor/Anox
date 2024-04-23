@@ -2,14 +2,22 @@ import { useState } from "react";
 import { HOMEPAGE_ROUTE } from "../constants";
 import { useAuth } from "../auth/authContext";
 import Spinner from "../components/spinner";
-import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, redirect, useNavigate } from "@tanstack/react-router";
 import AnoxApi from "../network/api";
 import { useForm } from "react-hook-form";
+import { flushSync } from "react-dom";
+
+const FALLBACK = '/';
 
 export const Route = createFileRoute('/login')({
     validateSearch: (search: Record<string, unknown>): { redirect: string } => ({
         redirect: (search.redirect as string) || HOMEPAGE_ROUTE
     }),
+    beforeLoad: ({ context, search }) => {
+        if (context.auth.isAuthenticated) {
+            throw redirect({ to: search.redirect || FALLBACK });
+        }
+    },
     component: Login,
 })
 
@@ -40,14 +48,17 @@ export default function Login() {
     async function onSubmit({ username, password }: LoginInput) {
         setLoading(true);
 
-
         try {
             const result = await AnoxApi.login(username, password);
-            auth.signIn({
-                username,
-                token: result.access
-            });
-            navigate({ to: search.redirect });
+
+            flushSync(() => {
+                auth.signIn({
+                    username,
+                    token: result.access
+                });
+            })
+
+            navigate({ to: search.redirect || FALLBACK });
         } catch (err: unknown) {
             const detailError = err as { detail: string };
             if (detailError.detail) {

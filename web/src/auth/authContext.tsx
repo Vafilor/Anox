@@ -38,7 +38,7 @@ function loadLocalAuth(): UserInfo | null {
 }
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<UserInfo | null>(loadLocalAuth);
+    const [user, setUser] = useState<UserInfo | null>(loadLocalAuth());
 
     const signIn = useCallback((user: UserInfo) => {
         AnoxApi.headers["Authorization"] = "Bearer " + user.token;
