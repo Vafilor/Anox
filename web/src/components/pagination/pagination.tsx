@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { PageType, countPages, generatePages, hasNextPage, hasPreviousPage } from "../../util/pagination";
+import { countPages, generatePages, hasNextPage, hasPreviousPage } from "../../util/pagination";
 import { Link } from "@tanstack/react-router";
+import PaginationItem from "./pagination-item";
 
 interface Props {
     page: number;
@@ -36,23 +37,11 @@ export default function Pagination({ page, pageSize, count, maxItems, className 
                 «&nbsp;Previous
             </Link>
             {pageItems.map((item, index) => (
-                <>
-                    {item.type === PageType.ELLIPSES ? (
-                        <div className="px-4 py-2 border-l">…</div>
-                    ) :
-                        <Link
-                            key={index}
-                            search={(prev) => ({
-                                ...prev,
-                                page: item.page
-                            })}
-                            disabled={page === item.page}
-                            data-active={page === item.page}
-                            className="px-4 py-2 border-l hover:bg-gray-100 transition-colors text-blue-500 data-[active=true]:bg-blue-500 data-[active=true]:text-white">
-                            {item.page}
-                        </Link>
-                    }
-                </>
+                <PaginationItem
+                    key={index}
+                    item={item}
+                    currentPage={page}
+                />
             ))}
             <Link
                 disabled={!hasNext}
