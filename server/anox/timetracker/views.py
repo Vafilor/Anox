@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from django.conf import settings
+from django.db import IntegrityError
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
 
@@ -95,11 +96,23 @@ class TagViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = TagSerializer(data=request.data)
+        tag_name = to_canonical_name(request.data["name"])
         if serializer.is_valid():
-            serializer.save(
-                assigned_to_id=request.user.id,
-                canonical_name=to_canonical_name(request.data["name"]),
-            )
+            try:
+                serializer.save(
+                    assigned_to_id=request.user.id,
+                    canonical_name=tag_name,
+                )
+            except IntegrityError:
+                return Response(
+                    {
+                        "error": {
+                            "message": f"Tag with the name '{tag_name}' already exists"
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
