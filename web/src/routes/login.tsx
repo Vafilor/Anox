@@ -6,6 +6,7 @@ import { createFileRoute, getRouteApi, redirect, useNavigate } from "@tanstack/r
 import AnoxApi from "../network/api";
 import { useForm } from "react-hook-form";
 import { flushSync } from "react-dom";
+import ErrorText from "../components/error/error-text";
 
 const FALLBACK = '/';
 
@@ -26,14 +27,6 @@ const routeApi = getRouteApi('/login')
 interface LoginInput {
     username: string;
     password: string;
-}
-
-function ErrorMessage({ children, className }: { children: string | undefined | null, className?: string }) {
-    if (!children) {
-        return null;
-    }
-
-    return <p className={"text-red-500 " + className}>{children}</p>;
 }
 
 export default function Login() {
@@ -78,7 +71,7 @@ export default function Login() {
                 className="border p-2 rounded w-[340px] bg-white">
                 <div className="text-lg text-center font-semibold">Anox</div>
                 <hr />
-                <ErrorMessage className="my-2">{submitError}</ErrorMessage>
+                <ErrorText className="my-2">{submitError}</ErrorText>
                 <div className="flex flex-col gap-2 mt-2">
                     <label htmlFor="username">Username</label>
                     <input
@@ -95,7 +88,7 @@ export default function Login() {
                         })}
                         className="border p-2 rounded"
                     />
-                    <ErrorMessage>{errors.username?.message}</ErrorMessage>
+                    <ErrorText>{errors.username?.message}</ErrorText>
                     <label htmlFor="password">Password</label>
                     <input
                         id="password"
@@ -112,7 +105,7 @@ export default function Login() {
                         type="password"
                         className="border p-2 rounded"
                     />
-                    <ErrorMessage>{errors.password?.message}</ErrorMessage>
+                    <ErrorText>{errors.password?.message}</ErrorText>
                     <button
                         type="submit"
                         className="bg-sky-400 hover:bg-sky-600 p-2 rounded inline-flex justify-center items-center disabled:cursor-not-allowed transition ease-in-out duration-150"
