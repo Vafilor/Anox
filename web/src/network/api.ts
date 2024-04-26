@@ -1,5 +1,15 @@
 import { BASE_API_URL } from "../constants";
 
+export interface ApiError {
+    error: {
+        message: string;
+    }
+}
+
+export function isApiError(err: unknown): err is ApiError {
+    return (err as ApiError).error?.message !== undefined;
+}
+
 export interface Tag {
     id: string;
     createdAt: string;
