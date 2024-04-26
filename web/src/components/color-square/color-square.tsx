@@ -1,21 +1,30 @@
+import { forwardRef } from "react";
 import parseApiColor from "../../util/color";
 
 interface Props {
-    color: string; // Hex RGB or RGBA. Only 
+    color: string; // Hex, RGB or RGBA
     length: number;
     className?: string;
+    onClick?: () => void;
 }
 
-export default function ColorSquare({ color, length, className }: Props) {
-    return (
-        <div
-            className={className}
-            style={{
-                width: length,
-                height: length,
-                backgroundColor: parseApiColor(color)
-            }}>
+const ColorSquare = forwardRef<HTMLDivElement, Props>(
+    function ColorSquare({ color, length, className, onClick }, ref) {
+        return (
+            <div
+                ref={ref}
+                className={className}
+                style={{
+                    width: length,
+                    height: length,
+                    backgroundColor: color
+                }}
+                data-color={color}
+                onClick={() => onClick?.()}>
 
-        </div>
-    );
-}
+            </div>
+        );
+    }
+);
+
+export default ColorSquare;
