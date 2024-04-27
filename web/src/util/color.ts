@@ -11,9 +11,18 @@ export default function parseApiColor(color: string): string {
  * This is safe to use if the color doesn't have a leading #.
  */
 export function clientToApiColor(color: string): string {
-    if (color.charAt(0) === "#") {
-        return color.substring(1);
+    let final = color;
+
+    while (final.charAt(0) === "#") {
+        final = final.substring(1);
     }
 
-    return color;
+    // Regular RGB hex string
+    if (final.length === 6) {
+        final = final.padEnd(8, "F");
+    } else if (final.length !== 8) {
+        throw new Error(`Unsupported color '${color}'. Must be RRGGBB or RRGGBBAA, leading # is optional`);
+    }
+
+    return final;
 }
