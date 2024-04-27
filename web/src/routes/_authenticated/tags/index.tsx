@@ -1,13 +1,15 @@
 import AnoxApi, { Tag, isApiError } from "../../../network/api";
-import { createFileRoute, useRouter, } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter, } from "@tanstack/react-router";
 import ColorSquare from "../../../components/color-square/color-square";
 import Pagination from "../../../components/pagination/pagination";
 import { useForm } from "react-hook-form";
 import { DEFAULT_COLOR } from "../../../constants";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import parseApiColor, { clientToApiColor } from "../../../util/color";
 import ErrorText from "../../../components/error/error-text";
 import Button from "../../../components/button/button";
+import debounce from 'debounce';
+import Input from "../../../components/input/input";
 
 interface TagSearch {
     search?: string;
@@ -19,6 +21,8 @@ interface CreateTagInput {
     name: string;
     color: string;
 }
+
+// TODO sorting
 
 export const Route = createFileRoute("/_authenticated/tags/")({
     component: Tags,
@@ -58,8 +62,9 @@ function Tags() {
         formState: { isSubmitting, errors }
     } = useForm<CreateTagInput>();
 
-    const [createErrors, setCreateErrors] = useState<string[]>([]);
+    const navigate = useNavigate({ from: Route.fullPath });
 
+    const [createErrors, setCreateErrors] = useState<string[]>([]);
     async function submitCreateTag({ name, color }: CreateTagInput) {
         setCreateErrors([]);
 
@@ -88,31 +93,47 @@ function Tags() {
         return { name, color };
     };
 
-    if (!results) {
-        return <div>No Results Tags</div>;
-    }
+    const searchTagName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        navigate({
+            search: {
+                search: event.target.value,
+                page: 1
+            }
+        })
+    }, [navigate])
 
     // TODO timestamps relative to local timezone?
     return (
         <>
-            <div className="p-2 overflow-auto">
+            <div className="p-2 overflow-auto bg-zinc-50">
                 <h1 className="text-3xl text-center font-medium">Tags</h1>
+                <fieldset className="border rounded p-2">
+                    <legend className="px-2 font-semibold">Filter</legend>
+                    <label htmlFor="filter-name" >Name</label>
+                    <Input
+                        id="filter-name"
+                        name="filer-name"
+                        autoComplete="off"
+                        defaultValue={search ?? ""}
+                        onInput={debounce(searchTagName, 250)}
+                    />
+                </fieldset>
                 <div className="flex justify-center">
-                    <Pagination
+                    {count !== 0 && <Pagination
                         page={page ?? 1}
                         pageSize={15}
                         maxItems={8}
                         count={count}
                         className="my-4"
-                    />
+                    />}
                 </div>
-                <div className="font-semibold text-lg">Add tag</div>
+                <div className="font-semibold text-lg mt-4">Add tag</div>
                 <form
                     method="post"
                     onSubmit={handleSubmit(submitCreateTag)}
                     className="w-100">
                     <div className="flex gap-2 w-100">
-                        <input
+                        <Input
                             {...register("name", {
                                 required: {
                                     value: true,
@@ -125,7 +146,7 @@ function Tags() {
                                 }
                             }}
                             autoComplete="off"
-                            className="p-2 border rounded w-full grow bg-white"
+                            className="grow"
                             placeholder="tag name"
                         />
                         <div>
@@ -149,7 +170,7 @@ function Tags() {
                         <ErrorText key={index}>{message}</ErrorText>
                     ))}
                 </form>
-                <table className="table-fixed w-full mt-2">
+                <table className="table-fixed w-full mt-2 b">
                     <thead>
                         <tr>
                             <th className="border p-2 text-left">Name</th>
@@ -164,8 +185,10 @@ function Tags() {
                                 <td className="border p-2 ">{tag.name}</td>
                                 <td className="border p-2 ">
                                     <ColorSquare
-                                        className="ml-2 border border-black"
+                                        className="ml-2"
                                         color={parseApiColor(tag.color)}
+                                        border
+                                        rounded
                                         length={25}
                                     />
                                 </td>
@@ -173,17 +196,22 @@ function Tags() {
                                 <td className="border p-2 ">View</td>
                             </tr>
                         ))}
+                        {results.length === 0 && (
+                            <tr>
+                                <td colSpan={4} className="border p-2 text-center">No tags found</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
 
                 <div className="flex justify-center">
-                    <Pagination
+                    {count !== 0 && <Pagination
                         page={page ?? 1}
                         pageSize={15}
                         maxItems={8}
                         count={count}
                         className="mt-4"
-                    />
+                    />}
                 </div>
             </div >
         </>
