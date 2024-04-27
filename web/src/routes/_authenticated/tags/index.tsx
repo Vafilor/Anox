@@ -5,11 +5,9 @@ import Pagination from "../../../components/pagination/pagination";
 import { useForm } from "react-hook-form";
 import { DEFAULT_COLOR } from "../../../constants";
 import { useState } from "react";
-import { autoUpdate, offset, useFloating } from '@floating-ui/react';
 import parseApiColor, { clientToApiColor } from "../../../util/color";
 import ErrorText from "../../../components/error/error-text";
 import Button from "../../../components/button/button";
-import ColorPicker from "../../../components/color-picker/color-picker";
 
 interface TagSearch {
     search?: string;
@@ -19,6 +17,7 @@ interface TagSearch {
 
 interface CreateTagInput {
     name: string;
+    color: string;
 }
 
 export const Route = createFileRoute("/_authenticated/tags/")({
@@ -60,29 +59,17 @@ function Tags() {
     } = useForm<CreateTagInput>();
 
     const [createErrors, setCreateErrors] = useState<string[]>([]);
-    const [color, setColor] = useState(DEFAULT_COLOR);
-    const [colorPickerOpen, setColorPickerOpen] = useState(false);
-    const { refs, floatingStyles } = useFloating({
-        whileElementsMounted: autoUpdate,
-        placement: "bottom-end",
-        middleware: [
-            offset({
-                mainAxis: 5
-            })
-        ]
-    });
 
-    async function submitCreateTag({ name }: CreateTagInput) {
+    async function submitCreateTag({ name, color }: CreateTagInput) {
         setCreateErrors([]);
 
         try {
             await AnoxApi.createTag({
                 name,
-                color: clientToApiColor(color || DEFAULT_COLOR)
+                color: clientToApiColor(color)
             });
 
             reset();
-            setColor(DEFAULT_COLOR);
             router.invalidate();
         } catch (err: unknown) {
             if (isApiError(err)) {
@@ -138,16 +125,15 @@ function Tags() {
                                 }
                             }}
                             autoComplete="off"
-                            className="p-2 border rounded w-full grow"
+                            className="p-2 border rounded w-full grow bg-white"
                             placeholder="tag name"
                         />
-                        <div className="px-1.5 inline-flex items-center border rounded">
-                            <ColorSquare
-                                ref={refs.setReference}
-                                color={color}
-                                length={25}
-                                className="border border-black"
-                                onClick={() => setColorPickerOpen(true)}
+                        <div>
+                            <input
+                                type="color"
+                                {...register("color")}
+                                defaultValue={DEFAULT_COLOR}
+                                className="h-full"
                             />
                         </div>
                         <Button
@@ -163,7 +149,7 @@ function Tags() {
                         <ErrorText key={index}>{message}</ErrorText>
                     ))}
                 </form>
-                <table className="table-fixed w-full border mt-2">
+                <table className="table-fixed w-full mt-2">
                     <thead>
                         <tr>
                             <th className="border p-2 text-left">Name</th>
@@ -200,15 +186,6 @@ function Tags() {
                     />
                 </div>
             </div >
-            {colorPickerOpen && (
-                <ColorPicker
-                    ref={refs.setFloating}
-                    color={color}
-                    setColor={setColor}
-                    setOpen={setColorPickerOpen}
-                    style={floatingStyles}
-                />
-            )}
         </>
     );
 }
