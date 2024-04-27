@@ -5,7 +5,7 @@ interface Props extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLB
     loading?: boolean;
 }
 
-const BUTTON_CLASSES = "px-3 py-2 select-none rounded inline-flex justify-center items-center transition-colors outline-none focus:shadow-focus disabled:opacity-80 disabled:pointer-events-none";
+const BUTTON_CLASSES = "px-3 py-2 select-none rounded inline-flex justify-center items-center transition-colors outline-none transition-shadow focus:shadow-focus disabled:opacity-80 disabled:pointer-events-none";
 
 const VARIANT_CLASSES = {
     "primary": BUTTON_CLASSES + " bg-blue-500 hover:bg-blue-600 text-white"
