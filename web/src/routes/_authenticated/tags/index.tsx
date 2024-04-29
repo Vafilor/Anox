@@ -178,7 +178,8 @@ function Tags() {
                                     search={(prev: TagSearch) => ({
                                         ...prev,
                                         ordering: toggleOrder(prev.ordering, "name")
-                                    })}>
+                                    })}
+                                    className="web-link">
                                     <SortOrder
                                         className="mr-1"
                                         order={sortOrderFromString(ordering, "name")}
@@ -192,7 +193,8 @@ function Tags() {
                                     search={(prev: TagSearch) => ({
                                         ...prev,
                                         ordering: toggleOrder(prev.ordering, "created_at")
-                                    })}>
+                                    })}
+                                    className="web-link">
                                     <SortOrder
                                         className="mr-1"
                                         order={sortOrderFromString(ordering, "created_at")}
