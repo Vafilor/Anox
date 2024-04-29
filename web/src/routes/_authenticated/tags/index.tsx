@@ -1,5 +1,5 @@
 import AnoxApi, { Tag, isApiError } from "../../../network/api";
-import { createFileRoute, useNavigate, useRouter, } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate, useRouter, } from "@tanstack/react-router";
 import ColorSquare from "../../../components/color-square/color-square";
 import Pagination from "../../../components/pagination/pagination";
 import { useForm } from "react-hook-form";
@@ -10,6 +10,8 @@ import ErrorText from "../../../components/error/error-text";
 import Button from "../../../components/button/button";
 import debounce from 'debounce';
 import Input from "../../../components/input/input";
+import { sortOrderFromString, toggleOrder } from "../../../util/order";
+import SortOrder from "../../../components/sort-order/sort-order";
 
 interface TagSearch {
     search?: string;
@@ -21,8 +23,6 @@ interface CreateTagInput {
     name: string;
     color: string;
 }
-
-// TODO sorting
 
 export const Route = createFileRoute("/_authenticated/tags/")({
     component: Tags,
@@ -173,9 +173,33 @@ function Tags() {
                 <table className="table-fixed w-full mt-2 b">
                     <thead>
                         <tr>
-                            <th className="border p-2 text-left">Name</th>
+                            <th className="border p-2 text-left">
+                                <Link
+                                    search={(prev: TagSearch) => ({
+                                        ...prev,
+                                        ordering: toggleOrder(prev.ordering, "name")
+                                    })}>
+                                    <SortOrder
+                                        className="mr-1"
+                                        order={sortOrderFromString(ordering, "name")}
+                                    />
+                                    Name
+                                </Link>
+                            </th>
                             <th className="border p-2 text-left w-[80px]">Color</th>
-                            <th className="border p-2 text-left">Created</th>
+                            <th className="border p-2 text-left">
+                                <Link
+                                    search={(prev: TagSearch) => ({
+                                        ...prev,
+                                        ordering: toggleOrder(prev.ordering, "created_at")
+                                    })}>
+                                    <SortOrder
+                                        className="mr-1"
+                                        order={sortOrderFromString(ordering, "created_at")}
+                                    />
+                                    Created
+                                </Link>
+                            </th>
                             <th className="border p-2 text-left">Actions</th>
                         </tr>
                     </thead>
