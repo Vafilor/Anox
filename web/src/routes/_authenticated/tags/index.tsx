@@ -12,6 +12,7 @@ import debounce from 'debounce';
 import Input from "../../../components/input/input";
 import { sortOrderFromString, toggleOrder } from "../../../util/order";
 import SortOrder from "../../../components/sort-order/sort-order";
+import Timestamp from "../../../components/timestamp/timestamp";
 
 interface TagSearch {
     search?: string;
@@ -102,7 +103,6 @@ function Tags() {
         })
     }, [navigate])
 
-    // TODO timestamps relative to local timezone?
     return (
         <>
             <div className="p-2 overflow-auto bg-zinc-50">
@@ -218,7 +218,9 @@ function Tags() {
                                         length={25}
                                     />
                                 </td>
-                                <td className="border p-2 ">{tag.createdAt}</td>
+                                <td className="border p-2 ">
+                                    <Timestamp when={tag.createdAt} />
+                                </td>
                                 <td className="border p-2 ">View</td>
                             </tr>
                         ))}
