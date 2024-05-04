@@ -104,7 +104,10 @@ def chunker(seq, size: int):
     return (seq[pos : pos + size] for pos in range(0, len(seq), size))
 
 
-def format_timestamp(ts: str) -> datetime:
+def format_timestamp(ts: str | None) -> datetime | None:
+    if ts is None:
+        return None
+
     return make_aware(datetime.fromtimestamp(int(ts)))
 
 
@@ -141,6 +144,7 @@ def handle_notes(items: List[dict]):
                         id=item["id"],
                         created_at=format_timestamp(item["createdAt"]),
                         updated_at=format_timestamp(item["updatedAt"]),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         title=item["title"],
                         content=item["content"],
                         assigned_to_id=user_cache.user_from_username(
@@ -151,6 +155,7 @@ def handle_notes(items: List[dict]):
             else:
                 note = mapping[item["id"]]
                 note.updated_at = format_timestamp(item["updatedAt"])
+                note.deleted_at = format_timestamp(item.get("deletedAt", None))
                 note.title = item["title"]
                 note.content = item["content"]
                 note.assigned_to_id = user_cache.user_from_username(item["assignedTo"])
@@ -192,6 +197,7 @@ def handle_statistics(items: List[dict]):
                             if "updated_at" in item
                             else now()
                         ),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         name=item["name"],
                         canonical_name=to_canonical_name(item["canonicalName"]),
                         description=item["description"],
@@ -211,6 +217,7 @@ def handle_statistics(items: List[dict]):
                     if "updated_at" in item
                     else now()
                 )
+                statistic.deleted_at = format_timestamp(item.get("deletedAt", None))
                 statistic.name = item["name"]
                 statistic.canonical_name = to_canonical_name(item["canonicalName"])
                 statistic.description = item["description"]
@@ -264,6 +271,7 @@ def handle_statistic_values(items: List[dict]):
                         created_at=format_timestamp(item["createdAt"]),
                         started_at=format_timestamp(item["startedAt"]),
                         ended_at=format_timestamp(item["endedAt"]),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         value=item["value"],
                         statistic_id=item["statisticId"],
                     )
@@ -272,6 +280,9 @@ def handle_statistic_values(items: List[dict]):
                 statistic_value = mapping[item["id"]]
                 statistic_value.started_at = format_timestamp(item["startedAt"])
                 statistic_value.ended_at = format_timestamp(item["endedAt"])
+                statistic_value.deleted_at = format_timestamp(
+                    item.get("deletedAt", None)
+                )
                 statistic_value.value = item["value"]
                 statistic_value.statistic_id = item["statisticId"]
 
@@ -298,6 +309,7 @@ def handle_tags(items: List[dict]):
                     Tag(
                         id=item["id"],
                         created_at=format_timestamp(item["createdAt"]),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         name=item["name"],
                         canonical_name=to_canonical_name(item["canonicalName"]),
                         color=format_color(item["color"]),
@@ -309,6 +321,7 @@ def handle_tags(items: List[dict]):
             else:
                 tag = mapping[item["id"]]
                 tag.name = item["name"]
+                tag.deleted_at = format_timestamp(item.get("deletedAt", None))
                 tag.canonical_name = to_canonical_name(item["canonicalName"])
                 tag.color = format_color(item["color"])
                 tag.assigned_to_id = user_cache.user_from_username(item["assignedTo"])
@@ -345,11 +358,8 @@ def handle_tasks(items: List[dict]):
                     id=item["id"],
                     created_at=format_timestamp(item["createdAt"]),
                     updated_at=format_timestamp(item["updatedAt"]),
-                    completed_at=(
-                        format_timestamp(item["completedAt"])
-                        if "completedAt" in item
-                        else None
-                    ),
+                    completed_at=format_timestamp(item.get("completedAt", None)),
+                    deleted_at=format_timestamp(item.get("deletedAt", None)),
                     priority=item["priority"],
                     active=bool(item["active"]),
                     name=item["name"],
@@ -366,11 +376,8 @@ def handle_tasks(items: List[dict]):
             else:
                 task = task_dict[item["id"]]
                 task.updated_at = format_timestamp(item["updatedAt"])
-                task.completed_at = (
-                    format_timestamp(item["completedAt"])
-                    if "completedAt" in item
-                    else None
-                )
+                task.completed_at = format_timestamp(item.get("completedAt", None))
+                task.deleted_at = format_timestamp(item.get("deletedAt", None))
                 task.priority = item["priority"]
                 task.active = bool(item["active"])
                 task.name = item["name"]
@@ -426,11 +433,8 @@ def handle_time_entries(items: List[dict]):
                         created_at=format_timestamp(item["createdAt"]),
                         updated_at=format_timestamp(item["updatedAt"]),
                         started_at=format_timestamp(item["startedAt"]),
-                        ended_at=(
-                            format_timestamp(item["endedAt"])
-                            if "endedAt" in item
-                            else None
-                        ),
+                        ended_at=format_timestamp(item.get("endedAt", None)),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         description=item["description"],
                         assigned_to_id=user_cache.user_from_username(
                             item["assignedTo"]
@@ -442,9 +446,8 @@ def handle_time_entries(items: List[dict]):
                 time_entry = time_entry_dict[item["id"]]
                 time_entry.updated_at = format_timestamp(item["updatedAt"])
                 time_entry.started_at = format_timestamp(item["startedAt"])
-                time_entry.ended_at = (
-                    format_timestamp(item["endedAt"]) if "endedAt" in item else None
-                )
+                time_entry.ended_at = format_timestamp(item.get("endedAt", None))
+                time_entry.deleted_at = format_timestamp(item.get("deletedAt", None))
                 time_entry.description = item["description"]
                 time_entry.assigned_to_id = user_cache.user_from_username(
                     item["assignedTo"]
@@ -491,6 +494,7 @@ def handle_timestamps(items: List[dict]):
                     Timestamp(
                         id=item["id"],
                         created_at=format_timestamp(item["createdAt"]),
+                        deleted_at=format_timestamp(item.get("deletedAt", None)),
                         description=item["description"],
                         assigned_to_id=user_cache.user_from_username(
                             item["assignedTo"]
@@ -500,6 +504,7 @@ def handle_timestamps(items: List[dict]):
             else:
                 timestamp = mapping[item["id"]]
                 timestamp.created_at = format_timestamp(item["createdAt"])
+                timestamp.deleted_at = format_timestamp(item.get("deletedAt", None))
                 timestamp.description = item["description"]
                 timestamp.assigned_to_id = user_cache.user_from_username(
                     item["assignedTo"]

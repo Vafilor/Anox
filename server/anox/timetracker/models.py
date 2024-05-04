@@ -5,6 +5,8 @@ from django.db import models
 from django.utils import timezone
 from timetracker.utils import to_canonical_name
 
+from .managers import SoftDeleteManager
+
 # TODO add indexes
 
 
@@ -25,9 +27,14 @@ class Task(models.Model):
     class Meta:
         db_table = "tasks"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
 
     completed_at = models.DateTimeField(null=True)
     closed_at = models.DateTimeField(null=True)
@@ -48,6 +55,13 @@ class Task(models.Model):
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", null=True, on_delete=models.CASCADE)
 
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
+
     def __str__(self) -> str:
         return self.name
 
@@ -56,14 +70,26 @@ class Timestamp(models.Model):
     class Meta:
         db_table = "timestamps"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
 
     # Any content you wish to add to a timestamp,
     # like "server reports out of memory error this time".
     description = models.TextField()
 
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
 
 
 class TimeEntry(models.Model):
@@ -72,9 +98,15 @@ class TimeEntry(models.Model):
         verbose_name = "time entry"
         verbose_name_plural = "time entries"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
+
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
     description = models.TextField()
@@ -82,14 +114,26 @@ class TimeEntry(models.Model):
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, null=True, blank=True, on_delete=models.SET_NULL)
 
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
+
 
 class Tag(models.Model):
     class Meta:
         db_table = "tags"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
 
     name = models.CharField(max_length=255)
     canonical_name = models.CharField(max_length=255, unique=True)
@@ -103,6 +147,13 @@ class Tag(models.Model):
         self.canonical_name = to_canonical_name(self.name)
         return super().save(*args, **kwargs)
 
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
+
     def __str__(self):
         return self.name
 
@@ -111,9 +162,14 @@ class Note(models.Model):
     class Meta:
         db_table = "notes"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
 
     """
     This is the date the note is for. So, if I'm writing down some notes on
@@ -127,14 +183,26 @@ class Note(models.Model):
 
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
+
 
 class Statistic(models.Model):
     class Meta:
         db_table = "statistics"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
 
     icon = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255)
@@ -150,14 +218,27 @@ class Statistic(models.Model):
 
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
+
 
 class StatisticValue(models.Model):
     class Meta:
         db_table = "statistic_values"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
+
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True, blank=True)
 
@@ -170,6 +251,13 @@ class StatisticValue(models.Model):
     timestamp = models.ForeignKey(
         Timestamp, on_delete=models.CASCADE, null=True, blank=True
     )
+
+    def delete(self, using=None, keep_parents=False, hard: bool = False):
+        if hard:
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.deleted_at = timezone.now()
+        return self.save()
 
 
 class TagLink(models.Model):
