@@ -21,6 +21,7 @@ import { Route as AuthenticatedTagsIndexImport } from './routes/_authenticated/t
 import { Route as AuthenticatedStatisticsIndexImport } from './routes/_authenticated/statistics/index'
 import { Route as AuthenticatedRecordsIndexImport } from './routes/_authenticated/records/index'
 import { Route as AuthenticatedNotesIndexImport } from './routes/_authenticated/notes/index'
+import { Route as AuthenticatedTagsTagIdImport } from './routes/_authenticated/tags/$tagId'
 
 // Create/Update Routes
 
@@ -77,6 +78,11 @@ const AuthenticatedNotesIndexRoute = AuthenticatedNotesIndexImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
+const AuthenticatedTagsTagIdRoute = AuthenticatedTagsTagIdImport.update({
+  path: '/tags/$tagId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -91,6 +97,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/': {
       preLoaderRoute: typeof AuthenticatedIndexImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/tags/$tagId': {
+      preLoaderRoute: typeof AuthenticatedTagsTagIdImport
       parentRoute: typeof AuthenticatedImport
     }
     '/_authenticated/notes/': {
@@ -129,6 +139,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   AuthenticatedRoute.addChildren([
     AuthenticatedIndexRoute,
+    AuthenticatedTagsTagIdRoute,
     AuthenticatedNotesIndexRoute,
     AuthenticatedRecordsIndexRoute,
     AuthenticatedStatisticsIndexRoute,

@@ -19,6 +19,11 @@ export interface Tag {
     color: string;
 }
 
+export interface TagTotals {
+    references: number;
+    totalTime: number; // seconds
+}
+
 export interface PaginatedResponse<T> {
     results: T[];
     count: number;
@@ -125,7 +130,11 @@ export default class AnoxApi {
     }
 
     static async getTag(id: string): Promise<Tag> {
-        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags/" + id);
+        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags/" + id + "/");
+    }
+
+    static async getTagTotals(id: string): Promise<TagTotals> {
+        return AnoxApi.apiJsonFetch(`${BASE_API_URL}/tags/${id}/totals/`);
     }
 
     static async createTag(args: CreateTag): Promise<Tag> {
