@@ -16,4 +16,4 @@ class SoftDeleteQuerySet(models.QuerySet):
         return super().update(deleted_at=timezone.now())
 
     def restore(self):
-        return super.update(deleted_at=None)
+        return super().update(deleted_at=None)

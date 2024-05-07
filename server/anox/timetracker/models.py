@@ -62,6 +62,10 @@ class Task(models.Model):
         self.deleted_at = timezone.now()
         return self.save()
 
+    def restore(self):
+        self.deleted_at = None
+        self.save()
+
     def __str__(self) -> str:
         return self.name
 
@@ -90,6 +94,10 @@ class Timestamp(models.Model):
 
         self.deleted_at = timezone.now()
         return self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
 
 
 class TimeEntry(models.Model):
@@ -120,6 +128,10 @@ class TimeEntry(models.Model):
 
         self.deleted_at = timezone.now()
         return self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
 
 
 class Tag(models.Model):
@@ -153,6 +165,10 @@ class Tag(models.Model):
 
         self.deleted_at = timezone.now()
         return self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
 
     def __str__(self):
         return self.name
@@ -190,6 +206,10 @@ class Note(models.Model):
         self.deleted_at = timezone.now()
         return self.save()
 
+    def restore(self):
+        self.deleted_at = None
+        self.save()
+
 
 class Statistic(models.Model):
     class Meta:
@@ -225,6 +245,10 @@ class Statistic(models.Model):
         self.deleted_at = timezone.now()
         return self.save()
 
+    def restore(self):
+        self.deleted_at = None
+        self.save()
+
 
 class StatisticValue(models.Model):
     class Meta:
@@ -258,6 +282,10 @@ class StatisticValue(models.Model):
 
         self.deleted_at = timezone.now()
         return self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
 
 
 class TagLink(models.Model):

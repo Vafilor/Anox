@@ -8,7 +8,7 @@ class SoftDeleteManager(Manager):
     def __init__(self, *args, **kwargs) -> None:
         self.with_deleted = kwargs.pop("with_deleted", False)
         self.only_deleted = kwargs.pop("only_deleted", False)
-        super(SoftDeleteManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_queryset(self) -> QuerySet:
         if self.with_deleted:
