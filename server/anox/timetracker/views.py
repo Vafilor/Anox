@@ -1,8 +1,11 @@
+import time
 from typing import Dict, List
 
 from django.conf import settings
 from django.db import IntegrityError
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import exceptions, filters, permissions, status, viewsets
+from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .filters import IsAssignedToFilterBackend
@@ -136,3 +139,18 @@ class TimestampViewSet(viewsets.ModelViewSet):
     )
     serializer_class = TimestampSerializer
     permissions_classes = [permissions.IsAuthenticated]
+
+
+@api_view(["GET"])
+def tag_totals(request: Request, tag_id):
+    try:
+        tag: Tag = Tag.objects.get(pk=tag_id)
+    except Tag.DoesNotExist:
+        return Response(None, status=status.HTTP_404_NOT_FOUND)
+
+    if tag.assigned_to != request.user:
+        return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+    return Response(
+        {"references": tag.get_total_references(), "totalTime": tag.get_total_time()}
+    )

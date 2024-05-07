@@ -1,7 +1,9 @@
 import uuid
+from typing import Sequence
 
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, transaction
+from django.db.models import F, Sum
 from django.utils import timezone
 from timetracker.utils import to_canonical_name
 
@@ -43,11 +45,11 @@ class Task(models.Model):
     name = models.CharField(max_length=255)
     canonical_name = models.CharField(max_length=255, unique=True)
     description = models.TextField()
-    priority = models.IntegerField()
-    template = models.BooleanField()
+    priority = models.IntegerField(default=0)
+    template = models.BooleanField(default=False)
 
     # If true, the task is currently being worked on, or, it's a target to work on.
-    active = models.BooleanField()
+    active = models.BooleanField(default=False)
 
     # How long the task is estimated to take in seconds.
     time_estimate = models.IntegerField(null=True)
@@ -59,8 +61,11 @@ class Task(models.Model):
         if hard:
             return super().delete(using=using, keep_parents=keep_parents)
 
-        self.deleted_at = timezone.now()
-        return self.save()
+        with transaction.atomic():
+            self.deleted_at = timezone.now()
+            self.tag_links.delete()
+
+            return self.save()
 
     def restore(self):
         self.deleted_at = None
@@ -169,6 +174,15 @@ class Tag(models.Model):
     def restore(self):
         self.deleted_at = None
         self.save()
+
+    def get_total_references(self):
+        return TagLink.objects.filter(tag=self).count()
+
+    def get_total_time(self):
+        # TODO add filter for the appropriate tag
+        return TimeEntry.objects.exclude(ended_at__isnull=True).aggregate(
+            total_time=Sum(F("ended_at") - F("started_at"))
+        )["total_time"]
 
     def __str__(self):
         return self.name
@@ -292,7 +306,13 @@ class TagLink(models.Model):
     class Meta:
         db_table = "tag_links"
 
+    objects = SoftDeleteManager()
+    objects_deleted = SoftDeleteManager(only_deleted=True)
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
     created_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
+
     time_entry = models.ForeignKey(
         TimeEntry,
         related_name="tag_links",
@@ -323,3 +343,28 @@ class TagLink(models.Model):
         null=True,
         blank=True,
     )
+
+
+def tag_object(obj, tags: Sequence[Tag]) -> int:
+    """Links Tag objects to the input object, obj by creating TagLinks.
+    If a TagLink already exists, it is skipped.
+    The input tags are assumed to all exist in the database
+    """
+
+    class_name = type(obj).__name__
+
+    tag_ids = [tag.id for tag in tags]
+
+    existing_links_map = TagLink.objects.filter(
+        tag_id__in=tag_ids, **{class_name: obj}
+    ).in_bulk(field_name="tag_id")
+
+    new_links = [
+        TagLink(tag=tag, **{class_name: obj})
+        for tag in tags
+        if tag.id not in existing_links_map
+    ]
+
+    TagLink.objects.bulk_create(new_links)
+
+    return len(new_links)

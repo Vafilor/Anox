@@ -4,12 +4,13 @@ from rest_framework import routers
 from . import views
 
 router = routers.DefaultRouter()
-router.register(f"notes", views.NoteViewSet)
-router.register(f"tags", views.TagViewSet)
-router.register(f"time_entries", views.TimeEntryViewSet)
-router.register(f"timestamps", views.TimestampViewSet)
+router.register("notes", views.NoteViewSet)
+router.register("tags", views.TagViewSet)
+router.register("time_entries", views.TimeEntryViewSet)
+router.register("timestamps", views.TimestampViewSet)
 
 app_name = "timetracker"
 urlpatterns = [
     path("api/", include(router.urls)),
+    path("api/tags/<tag_id>/totals/", views.tag_totals, name="tag_totals"),
 ]
