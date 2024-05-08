@@ -8,7 +8,7 @@ from .models import Tag
 # https://medium.com/xgeeks/timestamps-and-soft-delete-with-django-65f74d86e022
 class SoftDeletesTestCase(TestCase):
     def setUp(self) -> None:
-        self.user = User.objects.create(username="test", password="test")
+        self.user = User.objects.create(username="test")
 
     def create_tag(self, name: str) -> Tag:
         return Tag(name=name, color="FF0000FF", assigned_to=self.user)

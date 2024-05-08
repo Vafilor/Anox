@@ -1,7 +1,9 @@
 import uuid
+from datetime import timedelta
 from typing import Sequence
 
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.db.models import F, Sum
 from django.utils import timezone
@@ -178,11 +180,21 @@ class Tag(models.Model):
     def get_total_references(self):
         return TagLink.objects.filter(tag=self).count()
 
-    def get_total_time(self):
-        # TODO add filter for the appropriate tag
-        return TimeEntry.objects.exclude(ended_at__isnull=True).aggregate(
-            total_time=Sum(F("ended_at") - F("started_at"))
-        )["total_time"]
+    def get_total_time(self, chunk_size=500):
+        total_time = timedelta(0)
+
+        links = TagLink.objects.filter(tag=self).order_by("created_at")
+
+        for page in Paginator(links, per_page=chunk_size):
+            aggregate = (
+                TimeEntry.objects.exclude(ended_at__isnull=True)
+                .filter(tag_links__in=page.object_list)
+                .aggregate(total_time=Sum(F("ended_at") - F("started_at")))
+            )
+
+            total_time += aggregate["total_time"]
+
+        return total_time
 
     def __str__(self):
         return self.name
@@ -345,19 +357,40 @@ class TagLink(models.Model):
     )
 
 
+def object_to_query_class_name(obj) -> str:
+    class_name = type(obj).__name__
+
+    if class_name == "Tag":
+        return "tag"
+    elif class_name == "Task":
+        return "task"
+    elif class_name == "TimeEntry":
+        return "time_entry"
+    elif class_name == "Timestamp":
+        return "timestamp"
+    elif class_name == "Statistic":
+        return "statistic"
+    elif class_name == "Note":
+        return "note"
+
+    raise ValueError(f"Unsupported object of type '{class_name}'")
+
+
 def tag_object(obj, tags: Sequence[Tag]) -> int:
     """Links Tag objects to the input object, obj by creating TagLinks.
     If a TagLink already exists, it is skipped.
     The input tags are assumed to all exist in the database
     """
 
-    class_name = type(obj).__name__
+    class_name = object_to_query_class_name(obj)
 
     tag_ids = [tag.id for tag in tags]
 
-    existing_links_map = TagLink.objects.filter(
-        tag_id__in=tag_ids, **{class_name: obj}
-    ).in_bulk(field_name="tag_id")
+    existing_links_map = (
+        TagLink.objects.filter(tag_id__in=tag_ids, **{class_name: obj})
+        .distinct("tag_id")
+        .in_bulk(field_name="tag_id")
+    )
 
     new_links = [
         TagLink(tag=tag, **{class_name: obj})
