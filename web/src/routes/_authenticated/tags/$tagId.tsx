@@ -4,6 +4,8 @@ import Breadcrumbs from "../../../components/breadcrumbs/breadcrumbs";
 import Timestamp from "../../../components/timestamp/timestamp";
 import { Suspense } from "react";
 import Spinner from "../../../components/spinner";
+import Tag from "../../../components/tags/tag";
+import Duration from "../../../components/duration/duration";
 
 export const Route = createFileRoute("/_authenticated/tags/$tagId")({
     component: TagPage,
@@ -44,7 +46,7 @@ function TagPage() {
                     <tr>
                         <td className="border p-2 text-left">Preview</td>
                         <td className="border p-2 text-left">
-
+                            <Tag name={tag.name} color={tag.color} />
                         </td>
                     </tr>
                     <tr>
@@ -81,7 +83,7 @@ function TagPage() {
                                     <tr>
                                         <td className="border p-2 text-left">Total time</td>
                                         <td className="border p-2 text-left">
-                                            {data.totalTime}
+                                            <Duration value={data.totalTime} />
                                         </td>
                                     </tr>
                                 </>
