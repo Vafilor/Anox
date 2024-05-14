@@ -204,7 +204,6 @@ function Tags() {
                                 Created
                             </Link>
                         </th>
-                        <th className="border p-2 text-left">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -231,7 +230,6 @@ function Tags() {
                             <td className="border p-2 ">
                                 <Timestamp when={tag.createdAt} />
                             </td>
-                            <td className="border p-2 ">View</td>
                         </tr>
                     ))}
                     {results.length === 0 && (
