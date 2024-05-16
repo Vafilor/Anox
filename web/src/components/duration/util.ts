@@ -13,8 +13,14 @@ export default function formatDuration(duration: number): string {
         result += `${days}d `;
     }
 
-    result += hours + 'h ';
-    result += minutes + 'm ';
+    if (hours !== 0) {
+        result += hours + 'h ';
+    }
+
+    if (minutes !== 0) {
+        result += minutes + 'm ';
+    }
+
     result += seconds + 's';
 
     return result;
