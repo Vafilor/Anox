@@ -14,11 +14,11 @@ const VARIANT_CLASSES = {
     "primary": BUTTON_CLASSES + " bg-blue-500 hover:bg-blue-600 text-white"
 };
 
-export default function Button({ variant, loading, children, ...rest }: Props) {
+export default function Button({ variant, loading, className, children, ...rest }: Props) {
     return (
         <button
             {...rest}
-            className={VARIANT_CLASSES[variant || "base"]}>
+            className={VARIANT_CLASSES[variant || "base"] + " " + className}>
             {loading && <Spinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />}
             {children}
         </button>
