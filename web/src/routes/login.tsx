@@ -2,7 +2,7 @@ import { useState } from "react";
 import { HOMEPAGE_ROUTE } from "../constants";
 import { useAuth } from "../auth/authContext";
 import Spinner from "../components/spinner";
-import { createFileRoute, getRouteApi, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import AnoxApi from "../network/api";
 import { useForm } from "react-hook-form";
 import { flushSync } from "react-dom";
@@ -11,7 +11,7 @@ import ErrorText from "../components/error/error-text";
 const FALLBACK = '/';
 
 export const Route = createFileRoute('/login')({
-    validateSearch: (search: Record<string, unknown>): { redirect: string } => ({
+    validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
         redirect: (search.redirect as string) || HOMEPAGE_ROUTE
     }),
     beforeLoad: ({ context, search }) => {
@@ -21,8 +21,6 @@ export const Route = createFileRoute('/login')({
     },
     component: Login,
 })
-
-const routeApi = getRouteApi('/login')
 
 interface LoginInput {
     username: string;
@@ -34,7 +32,7 @@ export default function Login() {
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const search = routeApi.useSearch();
+    const search = Route.useSearch();
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>();
 
