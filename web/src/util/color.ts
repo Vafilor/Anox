@@ -3,7 +3,7 @@
  * and returns an html-friendly color.
  */
 export default function parseApiColor(color: string): string {
-    return "#" + color;
+    return "#" + color.substring(0, 6);
 }
 
 /**
