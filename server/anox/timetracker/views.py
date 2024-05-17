@@ -120,6 +120,17 @@ class TagViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        tag = self.get_object()
+
+        serializer = TagSerializer(tag, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TimeEntryViewSet(viewsets.ModelViewSet):
     queryset = (
