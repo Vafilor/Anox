@@ -143,4 +143,11 @@ export default class AnoxApi {
             body: JSON.stringify(args)
         })
     }
+
+    static async updateTag(tagId: string, args: { color: string }): Promise<Tag> {
+        return AnoxApi.apiJsonFetch(BASE_API_URL + "/tags/" + tagId + "/", {
+            method: "PUT",
+            body: JSON.stringify(args)
+        })
+    }
 }

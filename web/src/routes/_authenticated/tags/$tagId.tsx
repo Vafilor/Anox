@@ -1,11 +1,16 @@
 import { Await, createFileRoute, defer } from "@tanstack/react-router";
-import AnoxApi from "../../../network/api";
+import AnoxApi, { isApiError } from "../../../network/api";
 import Breadcrumbs from "../../../components/breadcrumbs/breadcrumbs";
 import Timestamp from "../../../components/timestamp/timestamp";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Spinner from "../../../components/spinner";
 import Tag from "../../../components/tags/tag";
 import Duration from "../../../components/duration/duration";
+import { useForm } from "react-hook-form";
+import parseApiColor, { clientToApiColor } from "../../../util/color";
+import Button from "../../../components/button/button";
+import toast from "react-hot-toast";
+import Message from "../../../components/toasts/message";
 
 export const Route = createFileRoute("/_authenticated/tags/$tagId")({
     component: TagPage,
@@ -20,8 +25,36 @@ export const Route = createFileRoute("/_authenticated/tags/$tagId")({
     }
 });
 
+interface TagInput {
+    color: string;
+}
+
 function TagPage() {
     const { tag, tagTotalsDeferred } = Route.useLoaderData();
+
+    const { register, handleSubmit } = useForm<TagInput>()
+    const [updatingTag, setUpdatingTag] = useState(false);
+
+    const onSubmit = async ({ color }: TagInput) => {
+        setUpdatingTag(true);
+
+        try {
+            await AnoxApi.updateTag(tag.id, { color: clientToApiColor(color) });
+            toast.success("Tag updated", { position: "top-right" });
+        } catch (err: unknown) {
+            if (isApiError(err)) {
+                toast.error(
+                    <Message title="Failed to update tag" body={err.error.message} />,
+                    { position: "top-right" }
+                );
+            } else {
+                toast.error("Unknown error occurred", { position: "top-right" });
+                console.error(err);
+            }
+        } finally {
+            setUpdatingTag(false);
+        }
+    }
 
     return (
         <div className="p-2 overflow-auto bg-zinc-50 w-full">
@@ -92,6 +125,20 @@ function TagPage() {
                     </Suspense>
                 </tbody>
             </table>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+                <input
+                    type="color" {...register('color')}
+                    defaultValue={parseApiColor(tag.color)}
+                    className="h-[40px] w-[40px] mt-2"
+                />
+                <Button
+                    type="submit"
+                    variant="primary"
+                    loading={updatingTag}
+                    className="self-start">
+                    Update
+                </Button>
+            </form>
         </div>
     );
 }
