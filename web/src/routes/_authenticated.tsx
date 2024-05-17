@@ -7,6 +7,7 @@ import { useDismiss, useFloating, useInteractions, offset } from "@floating-ui/r
 import { useAuth } from "../auth/authContext";
 import Button from "../components/button/button";
 import { LOGIN_ROUTE } from "../constants";
+import { Toaster } from "react-hot-toast";
 
 interface UrlElement {
     name: string;
@@ -100,6 +101,7 @@ function AuthenticatedComponent() {
                 </button>
             </header>
             <div className="flex h-[calc(100vh-64px)]">
+                <div><Toaster /></div>
                 <div
                     className="hidden w-screen md:block md:w-[240px] bg-zinc-900 data-[manual-open]:fixed data-[manual-open]:text-center shrink-0 overflow-auto"
                     style={{
