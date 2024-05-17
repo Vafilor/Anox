@@ -19,8 +19,8 @@ export default function Button({ variant, loading, className, children, ...rest 
         <button
             {...rest}
             className={VARIANT_CLASSES[variant || "base"] + " " + className}>
-            {loading && <Spinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />}
-            {children}
+            {loading && <Spinner className="animate-spin absolute h-5 w-5 text-white" />}
+            {loading ? <span className="invisible">{children}</span> : children}
         </button>
     );
 }
