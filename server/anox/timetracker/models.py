@@ -192,7 +192,8 @@ class Tag(models.Model):
                 .aggregate(total_time=Sum(F("ended_at") - F("started_at")))
             )
 
-            total_time += aggregate["total_time"]
+            if (delta := aggregate["total_time"]) is not None:
+                total_time += delta
 
         return total_time
 

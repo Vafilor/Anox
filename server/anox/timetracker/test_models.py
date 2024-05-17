@@ -106,6 +106,15 @@ class TagObjectTestCase(TestCase):
 
         self.assertEqual(t.get_total_time(), timedelta(seconds=10))
 
+    def test_no_total_time(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        self.assertEqual(t.get_total_time(), timedelta(0))
+
+    def test_no_total_references(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+        self.assertEqual(t.get_total_references(), 0)
+
     def test_total_time_many_entries(self):
         t = Tag.objects.create(name="test", assigned_to=self.user)
 
