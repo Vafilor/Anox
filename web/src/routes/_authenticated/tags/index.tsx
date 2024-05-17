@@ -14,6 +14,7 @@ import { sortOrderFromString, toggleOrder } from "../../../util/order";
 import SortOrder from "../../../components/sort-order/sort-order";
 import Timestamp from "../../../components/timestamp/timestamp";
 import { useDocumentTitle } from "@uidotdev/usehooks";
+import toast from "react-hot-toast";
 
 interface TagSearch {
     search?: string;
@@ -80,6 +81,8 @@ function Tags() {
 
             reset();
             router.invalidate();
+
+            toast.success(`Tag '${name}' created`, { position: "top-right" });
         } catch (err: unknown) {
             if (isApiError(err)) {
                 setCreateErrors([err.error.message]);
