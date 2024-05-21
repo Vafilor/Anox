@@ -1,6 +1,6 @@
 import uuid
-from datetime import timedelta
-from typing import Sequence
+from datetime import date, timedelta
+from typing import Dict, Sequence
 
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -10,6 +10,7 @@ from django.utils import timezone
 from timetracker.utils import to_canonical_name
 
 from .managers import SoftDeleteManager
+from .utils import split_datetimes_across_days
 
 # TODO add indexes
 
@@ -58,6 +59,10 @@ class Task(models.Model):
 
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", null=True, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs) -> None:
+        self.canonical_name = to_canonical_name(self.name)
+        return super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False, hard: bool = False):
         if hard:
@@ -180,10 +185,14 @@ class Tag(models.Model):
     def get_total_references(self):
         return TagLink.objects.filter(tag=self).count()
 
-    def get_total_time(self, chunk_size=500):
+    def get_total_time(self, chunk_size=500) -> timedelta:
         total_time = timedelta(0)
 
-        links = TagLink.objects.filter(tag=self).order_by("created_at")
+        links = (
+            TagLink.objects.filter(tag=self)
+            .exclude(time_entry_id__isnull=True)
+            .order_by("created_at")
+        )
 
         for page in Paginator(links, per_page=chunk_size):
             aggregate = (
@@ -196,6 +205,34 @@ class Tag(models.Model):
                 total_time += delta
 
         return total_time
+
+    def get_time_report(self, chunk_size=500) -> Dict[date, timedelta]:
+        results = {}
+
+        links = (
+            TagLink.objects.filter(tag=self)
+            .exclude(time_entry_id__isnull=True)
+            .order_by("created_at")
+        )
+
+        for page in Paginator(links, per_page=chunk_size):
+            time_entries = TimeEntry.objects.exclude(ended_at__isnull=True).filter(
+                tag_links__in=page.object_list
+            )
+
+            for time_entry in time_entries:
+                parts = split_datetimes_across_days(
+                    time_entry.started_at, time_entry.ended_at
+                )
+
+                for i in range(0, len(parts), 2):
+                    key = parts[i].date()
+                    if key not in results:
+                        results[key] = timedelta(0)
+
+                    results[key] += parts[i + 1] - parts[i]
+
+        return results
 
     def __str__(self):
         return self.name
@@ -264,6 +301,10 @@ class Statistic(models.Model):
     time_type = models.CharField(max_length=255, choices=TIME_TYPE_CHOICES)
 
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs) -> None:
+        self.canonical_name = to_canonical_name(self.name)
+        return super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False, hard: bool = False):
         if hard:

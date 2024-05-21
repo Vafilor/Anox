@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from unittest import TestCase as UnitTestCase
 
 from django.test import TestCase
@@ -72,6 +72,17 @@ class TagObjectTestCase(TestCase):
         note_link_count = tag_object(note, [t1, t2])
         self.assertEqual(note_link_count, 2)
 
+    def test_apply_tag_multiple_times(self):
+        tag = Tag.objects.create(name="test", color="FF00FFFF", assigned_to=self.user)
+
+        task_1 = Task.objects.create(name="task", assigned_to=self.user)
+        task_2 = Task.objects.create(name="task2", assigned_to=self.user)
+
+        tag_object(task_1, [tag])
+        tag_object(task_2, [tag])
+
+        self.assertEqual(TagLink.objects.count(), 2)
+
     def skips_existing_tag_links(self):
         t1 = Tag.objects.create(name="test", color="FF00FFFF", assigned_to=self.user)
         t2 = Tag.objects.create(name="test2", color="FF00FFFF", assigned_to=self.user)
@@ -90,6 +101,11 @@ class TagObjectTestCase(TestCase):
 
         self.assertEqual(new_count, 1)
         self.assertEqual(TagLink.objects.count(), 3)
+
+
+class TagTestCase(TestCase):
+    def setUp(self) -> None:
+        self.user = User.objects.create(username="test")
 
     def test_total_time(self):
         t = Tag.objects.create(name="test", assigned_to=self.user)
@@ -166,6 +182,119 @@ class TagObjectTestCase(TestCase):
         time_entry_2.delete()
 
         self.assertEqual(t.get_total_time(), timedelta(seconds=10))
+
+    def test_time_report_no_entries(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        report = t.get_time_report()
+
+        self.assertDictEqual(report, {})
+
+    def test_time_report_single_entry(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        start_time = timezone.now()
+
+        time_entry = TimeEntry.objects.create(
+            started_at=start_time,
+            ended_at=start_time + timedelta(seconds=10),
+            assigned_to=self.user,
+        )
+
+        tag_object(time_entry, [t])
+
+        report = t.get_time_report()
+
+        self.assertDictEqual(report, {start_time.date(): timedelta(seconds=10)})
+
+    def test_time_report_single_entry_span_days(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        start_time = datetime(
+            year=2000, month=1, day=1, hour=12, tzinfo=timezone.get_current_timezone()
+        )
+        end_time = start_time + timedelta(hours=13)
+
+        time_entry = TimeEntry.objects.create(
+            started_at=start_time,
+            ended_at=end_time,
+            assigned_to=self.user,
+        )
+
+        tag_object(time_entry, [t])
+
+        report = t.get_time_report()
+
+        self.assertDictEqual(
+            report,
+            {
+                start_time.date(): timedelta(hours=12),
+                end_time.date(): timedelta(hours=1),
+            },
+        )
+
+    def test_time_report_many_entries_one_day(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        start_time = timezone.now()
+
+        time_entry = TimeEntry.objects.create(
+            started_at=start_time,
+            ended_at=start_time + timedelta(hours=1),
+            assigned_to=self.user,
+        )
+
+        time_entry_2 = TimeEntry.objects.create(
+            started_at=start_time + timedelta(minutes=10),
+            ended_at=start_time + timedelta(minutes=20),
+            assigned_to=self.user,
+        )
+
+        tag_object(time_entry, [t])
+        tag_object(time_entry_2, [t])
+
+        report = t.get_time_report()
+
+        self.assertDictEqual(
+            report,
+            {start_time.date(): timedelta(hours=1, minutes=10)},
+        )
+
+    def test_time_report_many_entries_many_days(self):
+        t = Tag.objects.create(name="test", assigned_to=self.user)
+
+        start_1 = datetime(
+            year=2000, month=1, day=1, hour=12, tzinfo=timezone.get_current_timezone()
+        )
+        end_1 = start_1 + timedelta(hours=13)
+
+        start_2 = start_1 + timedelta(minutes=30)
+        end_2 = start_2 + timedelta(hours=13)
+
+        time_entry = TimeEntry.objects.create(
+            started_at=start_1,
+            ended_at=end_1,
+            assigned_to=self.user,
+        )
+
+        time_entry_2 = TimeEntry.objects.create(
+            started_at=start_2,
+            ended_at=end_2,
+            assigned_to=self.user,
+        )
+
+        tag_object(time_entry, [t])
+        tag_object(time_entry_2, [t])
+
+        report = t.get_time_report()
+
+        self.assertDictEqual(
+            report,
+            {
+                start_1.date(): timedelta(hours=23, minutes=30),
+                end_2.date(): timedelta(hours=2, minutes=30),
+            },
+        )
 
 
 class TaskTestCase(TestCase):
