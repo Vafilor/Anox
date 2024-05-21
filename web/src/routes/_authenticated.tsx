@@ -1,4 +1,4 @@
-import { Link, Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,38 +8,7 @@ import { useAuth } from "../auth/authContext";
 import Button from "../components/button/button";
 import { LOGIN_ROUTE } from "../constants";
 import { Toaster } from "react-hot-toast";
-
-interface UrlElement {
-    name: string;
-    path: string;
-}
-
-const URLS: UrlElement[] = [{
-    name: "Today",
-    path: "/"
-}, {
-    name: "Time Entries",
-    path: "/time-entries"
-}, {
-    name: "Tasks",
-    path: "/tasks"
-}, {
-    name: "Timestamps",
-    path: "/timestamps"
-}, {
-    name: "Tags",
-    path: "/tags"
-}, {
-    name: "Statistics",
-    path: "/statistics"
-}, {
-    name: "Records",
-    path: "/records"
-}, {
-    name: "Notes",
-    path: "/notes"
-}];
-
+import Sidebar from "../components/sidebar/sidebar";
 
 export const Route = createFileRoute("/_authenticated")({
     component: AuthenticatedComponent,
@@ -101,30 +70,8 @@ function AuthenticatedComponent() {
                 </button>
             </header>
             <div className="flex h-[calc(100vh-64px)]">
-                <div><Toaster /></div>
-                <div
-                    className="hidden w-screen md:block md:w-[240px] bg-zinc-900 data-[manual-open]:fixed data-[manual-open]:text-center shrink-0 overflow-auto"
-                    style={{
-                        display: sidebarOpen ? "block" : undefined
-                    }}
-                    data-manual-open={sidebarOpen ? true : undefined}>
-                    <ul>
-                        {URLS.map(({ name, path }) => (
-                            <li key={path}>
-                                <Link
-                                    to={path}
-                                    activeProps={{
-                                        className: "block p-3 bg-zinc-600"
-                                    }}
-                                    className="block text-sky-200 p-3 hover:bg-zinc-600"
-                                    onClick={() => setSidebarOpen(false)}
-                                >
-                                    {name}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                <Toaster />
+                <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
                 <Outlet />
             </div>
             {profileOpen && (
