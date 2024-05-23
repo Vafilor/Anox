@@ -536,10 +536,10 @@ def handle_users(items: List[dict]):
             )
 
         u.profile.timezone = item["timezone"]
-        u.profile.dateFormat = item["dateFormat"]
-        u.profile.dateTimeFormat = item["dateTimeFormat"]
-        u.profile.todayDateTimeFormat = item["todayDateTimeFormat"]
-        u.profile.durationFormat = item["durationFormat"]
+        u.profile.date_format = item["dateFormat"]
+        u.profile.datetime_format = item["dateTimeFormat"]
+        u.profile.today_datetime_format = item["todayDateTimeFormat"]
+        u.profile.duration_format = item["durationFormat"]
         u.profile.save()
 
 

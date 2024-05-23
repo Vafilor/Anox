@@ -22,10 +22,10 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     timezone = models.CharField(max_length=255)
-    dateFormat = models.CharField(max_length=50)
-    dateTimeFormat = models.CharField(max_length=50)
-    todayDateTimeFormat = models.CharField(max_length=50)
-    durationFormat = models.CharField(max_length=50)
+    date_format = models.CharField(max_length=50)
+    datetime_format = models.CharField(max_length=50)
+    today_datetime_format = models.CharField(max_length=50)
+    duration_format = models.CharField(max_length=50)
 
 
 class Task(models.Model):
