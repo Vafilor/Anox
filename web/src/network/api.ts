@@ -11,5 +11,7 @@ export default class AnoxApi {
         return AuthApi;
     }
 
+    static get Profile(): typeof ProfileApi {
+        return ProfileApi;
     }
 }

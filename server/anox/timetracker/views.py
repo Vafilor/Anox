@@ -1,17 +1,17 @@
-import time
 from typing import Dict, List
 
 from django.conf import settings
 from django.db import IntegrityError
-from rest_framework import exceptions, filters, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .filters import IsAssignedToFilterBackend
-from .models import Note, Tag, TagLink, TimeEntry, Timestamp
+from .models import Note, Profile, Tag, TagLink, TimeEntry, Timestamp
 from .serializers import (
     NoteSerializer,
+    ProfileSerializer,
     TagSerializer,
     TimeEntrySerializer,
     TimestampSerializer,
@@ -76,8 +76,8 @@ class NoteViewSet(viewsets.ModelViewSet):
                     link.save()
                     tag_links.append(link)
 
-            # TODO this works fine, but we might want to move the logic to the serializer as a
-            # mixin or something to make it re-usable
+            # TODO this works fine, but we might want to move the logic to the
+            # serializer as a mixin or something to make it re-usable
             serializer._data["tags"] = [TagSerializer(tag).data for tag in tags]
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -153,6 +153,25 @@ class TimestampViewSet(viewsets.ModelViewSet):
 
 
 @api_view(["GET"])
+def get_profile(request: Request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    serializer = ProfileSerializer(profile)
+
+    return Response(serializer.data)
+
+
+@api_view(["PUT"])
+def update_profile(request: Request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    serializer = ProfileSerializer(profile, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
 def tag_totals(request: Request, tag_id):
     try:
         tag: Tag = Tag.objects.get(pk=tag_id)
@@ -163,5 +182,25 @@ def tag_totals(request: Request, tag_id):
         return Response(None, status=status.HTTP_403_FORBIDDEN)
 
     return Response(
-        {"references": tag.get_total_references(), "totalTime": tag.get_total_time()}
+        {
+            "references": tag.get_total_references(),
+            "totalTime": tag.get_total_time().total_seconds(),
+        }
     )
+
+
+@api_view(["GET"])
+def tag_time_report(request: Request, tag_id):
+    try:
+        tag: Tag = Tag.objects.get(pk=tag_id)
+    except Tag.DoesNotExist:
+        return Response(None, status=status.HTTP_404_NOT_FOUND)
+
+    if tag.assigned_to != request.user:
+        return Response(None, status=status.HTTP_403_FORBIDDEN)
+
+    formatted_report = {
+        str(key): value.total_seconds() for key, value in tag.get_time_report().items()
+    }
+
+    return Response({"report": formatted_report})

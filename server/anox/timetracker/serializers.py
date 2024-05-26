@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Note, Statistic, StatisticValue, Tag, TagLink, TimeEntry, Timestamp
+from .models import Note, Profile, Tag, TimeEntry, Timestamp
 from .utils import to_canonical_name
 
 
@@ -83,3 +83,19 @@ class TimestampSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Timestamp
         fields = ["id", "created_at", "description", "tags"]
+
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    username = serializers.CharField(read_only=True, source="user.username")
+
+    class Meta:
+        model = Profile
+        fields = [
+            "id",
+            "username",
+            "timezone",
+            "date_format",
+            "datetime_format",
+            "today_datetime_format",
+            "duration_format",
+        ]
