@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import AnoxApi from "../network/api";
+import Network from "../network/network";
 
 export interface UserInfo {
     username: string;
@@ -32,7 +32,7 @@ function loadLocalAuth(): UserInfo | null {
     }
 
 
-    AnoxApi.headers["Authorization"] = "Bearer " + parsed.token;
+    Network.headers["Authorization"] = "Bearer " + parsed.token;
 
     return parsed;
 }
@@ -41,13 +41,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const [user, setUser] = useState<UserInfo | null>(loadLocalAuth());
 
     const signIn = useCallback((user: UserInfo) => {
-        AnoxApi.headers["Authorization"] = "Bearer " + user.token;
+        Network.headers["Authorization"] = "Bearer " + user.token;
+
         localStorage.setItem("user", JSON.stringify(user));
         setUser(user);
     }, [setUser]);
 
     const signOut = useCallback(() => {
-        delete AnoxApi.headers["Authorization"];
+        delete Network.headers["Authorization"];
         localStorage.removeItem("user");
         setUser(null);
     }, [setUser]);

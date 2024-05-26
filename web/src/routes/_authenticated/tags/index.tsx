@@ -1,4 +1,3 @@
-import AnoxApi, { Tag, isApiError } from "../../../network/api";
 import { Link, createFileRoute, useNavigate, useRouter, } from "@tanstack/react-router";
 import ColorSquare from "../../../components/color-square/color-square";
 import Pagination from "../../../components/pagination/pagination";
@@ -15,6 +14,9 @@ import SortOrder from "../../../components/sort-order/sort-order";
 import Timestamp from "../../../components/timestamp/timestamp";
 import { useDocumentTitle } from "@uidotdev/usehooks";
 import toast from "react-hot-toast";
+import AnoxApi from "../../../network/api";
+import { isApiError } from "../../../network/utils";
+import { Tag } from "../../../network/tag-api";
 
 interface TagSearch {
     search?: string;
@@ -42,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/tags/")({
         }
     },
     loader: ({ deps }) => {
-        return AnoxApi.listTags({
+        return AnoxApi.Tag.list({
             search: {
                 search: deps.search
             },
@@ -57,7 +59,8 @@ export const Route = createFileRoute("/_authenticated/tags/")({
 function Tags() {
     useDocumentTitle("Tags");
 
-    const { page, search, ordering } = Route.useSearch();
+    const { page, search, ordering: baseOrdering } = Route.useSearch();
+    const ordering = baseOrdering || "-created_at";
     const { results, count } = Route.useLoaderData();
     const router = useRouter();
     const {
@@ -74,7 +77,7 @@ function Tags() {
         setCreateErrors([]);
 
         try {
-            await AnoxApi.createTag({
+            await AnoxApi.Tag.create({
                 name,
                 color: clientToApiColor(color)
             });

@@ -40,7 +40,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const result = await AnoxApi.login(username, password);
+            const result = await AnoxApi.Auth.login(username, password);
 
             flushSync(() => {
                 auth.signIn({
