@@ -23,7 +23,7 @@ export interface TagTotals {
 }
 
 export interface TagTimeReport {
-    report: Map<string, number>
+    report: Record<string, number>
 }
 
 export default class TagApi {

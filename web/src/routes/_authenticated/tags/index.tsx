@@ -3,7 +3,7 @@ import ColorSquare from "../../../components/color-square/color-square";
 import Pagination from "../../../components/pagination/pagination";
 import { useForm } from "react-hook-form";
 import { DEFAULT_COLOR } from "../../../constants";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import parseApiColor, { clientToApiColor } from "../../../util/color";
 import ErrorText from "../../../components/error/error-text";
 import Button from "../../../components/button/button";

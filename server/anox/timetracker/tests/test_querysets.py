@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
-
-from .models import Tag
+from timetracker.models import Tag
 
 
 # A lot of this is heavily inspired by:

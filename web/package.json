@@ -64,7 +64,7 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "start": "webpack serve --open --mode=development",
+    "dev": "webpack serve --open --mode=development",
     "build": "webpack",
     "watch": "webpack t--watch --mode=development",
     "test": "jest",

@@ -2,7 +2,11 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from .utils import split_datetimes_across_days, start_of_next_day, to_canonical_name
+from timetracker.utils import (
+    split_datetimes_across_days,
+    start_of_next_day,
+    to_canonical_name,
+)
 
 
 class TestUtils:
