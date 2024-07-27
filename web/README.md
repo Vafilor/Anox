@@ -1,13 +1,14 @@
 # Anox Web
 
+The frontend of Anox, written in React.
 
 ## Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm run dev`
 
-Runs the app in the development mode.
+This runs the app in the development mode.
 
 ### `npm generate:routes`
 

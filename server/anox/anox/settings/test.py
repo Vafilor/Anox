@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .base import *
 
-load_dotenv(Path(__file__).resolve().parent / ".env.test")
+load_dotenv(BASE_DIR.parent / ".env.test")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
