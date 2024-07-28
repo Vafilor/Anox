@@ -1,6 +1,6 @@
 # Anox Server
 
-The backend of the Anox, written in Django. Mostly a JSON API.
+The backend of the Anox, written in Django. Mostly a JSON API using (Django REST framework)[https://www.django-rest-framework.org/]
 
 # Getting started
 
