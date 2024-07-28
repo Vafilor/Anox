@@ -1,10 +1,10 @@
-import { Tag as TagModel, TagTotals } from "../../../../network/tag-api";
-import Tag from "../../../../components/tags/tag";
-import Timestamp from "../../../../components/timestamp/timestamp";
+import { Tag as TagModel, TagTotals } from "@/network/tag-api";
 import { Suspense } from "react";
-import Spinner from "../../../../components/spinner";
 import { Await, DeferredPromise } from "@tanstack/react-router";
-import Duration from "../../../../components/duration/duration";
+import Timestamp from "@/components/timestamp/timestamp";
+import Tag from "@/components/tags/tag";
+import Spinner from "@/components/spinner";
+import Duration from "@/components/duration/duration";
 
 interface Props {
     tag: TagModel;

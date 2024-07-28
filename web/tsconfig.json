@@ -19,9 +19,14 @@
     "isolatedModules": true,
     "noEmit": false, // TODO set up Babel for backwards compatibility?
     "jsx": "react-jsx",
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "src"
-  ]
+  ],
 }

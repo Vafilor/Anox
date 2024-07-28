@@ -40,6 +40,9 @@ module.exports = (webpackEnv, argv) => {
         },
         devtool: isEnvDevelopment ? 'inline-source-map' : false,
         resolve: {
+            alias: {
+                "@": path.resolve(__dirname, "src")
+            },
             extensions: ['.tsx', '.ts', '.js'],
         },
         plugins: [
