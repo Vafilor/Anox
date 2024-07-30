@@ -88,8 +88,12 @@ def tag_time_report(request: Request, tag_id):
     if tag.assigned_to != request.user:
         return Response(None, status=status.HTTP_403_FORBIDDEN)
 
-    formatted_report = {
-        str(key): value.total_seconds() for key, value in tag.get_time_report().items()
-    }
+    result = []
+    report = tag.get_time_report()
+    total = 0
+    for date_key in sorted(report.keys()):
+        seconds = report[date_key].total_seconds()
+        total += seconds
+        result.append({"date": str(date_key), "seconds": seconds})
 
-    return Response({"report": formatted_report})
+    return Response({"report": result, "total": total})

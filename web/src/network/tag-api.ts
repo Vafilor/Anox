@@ -22,8 +22,14 @@ export interface TagTotals {
     totalTime: number; // seconds
 }
 
+
+interface ReportEntry {
+    date: string;
+    seconds: number;
+}
 export interface TagTimeReport {
-    report: Record<string, number>
+    report: ReportEntry[];
+    total: number;
 }
 
 export default class TagApi {

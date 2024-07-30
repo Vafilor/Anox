@@ -28,11 +28,11 @@ def split_datetimes_across_days(start: datetime, end: datetime) -> list[datetime
         1/3/2000 0:00, 1/4/2000 7:23
     ]
     """
-    if start.day == end.day:
-        return [start, end]
+    if end < start:
+        raise ValueError(f"End '{end}' is before start '{start}'")
 
-    if end.day < start.day:
-        raise ValueError(f"End day ({end.day}) is before start day ({start.day})")
+    if (start.year, start.month, start.day) == (end.year, end.month, end.day):
+        return [start, end]
 
     result = []
 

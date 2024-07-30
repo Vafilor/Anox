@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.db.models import F, Sum
 from django.utils import timezone
+
 from timetracker.utils import to_canonical_name
 
 from .managers import SoftDeleteManager
@@ -221,9 +222,13 @@ class Tag(models.Model):
             )
 
             for time_entry in time_entries:
-                parts = split_datetimes_across_days(
-                    time_entry.started_at, time_entry.ended_at
-                )
+                # TODO log the error
+                try:
+                    parts = split_datetimes_across_days(
+                        time_entry.started_at, time_entry.ended_at
+                    )
+                except ValueError:
+                    continue
 
                 for i in range(0, len(parts), 2):
                     key = parts[i].date()
