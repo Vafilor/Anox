@@ -5,6 +5,7 @@ import Spinner from "../../../../components/spinner";
 import Duration from "@/components/duration/duration";
 import classNames from "classnames";
 import Block from "@/components/loading/block";
+import { formatDurationRetainZeros, formatDurationRetainZerosToHours } from "@/components/duration/util";
 
 interface Props {
     tag: TagModel;
@@ -48,7 +49,7 @@ function ReportBody({ model }: { model: TagTimeReportModel }) {
                             {item.date}
                         </td>
                         <td className="p-2">
-                            <Duration value={item.seconds} />
+                            <Duration formatter={formatDurationRetainZerosToHours} value={item.seconds} />
                         </td>
                     </tr>
                 ))}
@@ -57,7 +58,7 @@ function ReportBody({ model }: { model: TagTimeReportModel }) {
                 <tr className="border-x border-b border-t border-t-slate-900 bg-sky-200">
                     <td className="p-2 font-bold">Total</td>
                     <td className="p-2 font-bold">
-                        <Duration value={model.total} />
+                        <Duration formatter={formatDurationRetainZeros} value={model.total} />
                     </td>
                 </tr>
             </tfoot>
